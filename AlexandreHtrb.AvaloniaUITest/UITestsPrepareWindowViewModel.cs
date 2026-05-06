@@ -34,6 +34,8 @@ public class UITestsPrepareWindowViewModel : UITestBaseViewModel
 {
     private readonly Action<string> uiTestsFinishedCallback;
 
+    private CancellationTokenSource? cancellationTokenSource;
+
     private int actionsWaitingtimeInMsField;
     public int ActionsWaitingTimeInMs
     {
@@ -41,7 +43,27 @@ public class UITestsPrepareWindowViewModel : UITestBaseViewModel
         set => ChangeProperty(ref this.actionsWaitingtimeInMsField, value);
     }
 
+    private string runOrStopTestsButtonTextField;
+    public string RunOrStopTestsButtonText
+    {
+        get => this.runOrStopTestsButtonTextField;
+        set => ChangeProperty(ref this.runOrStopTestsButtonTextField!, value);
+    }
+
+    private bool isRunningTestsField;
+    public bool IsRunningTests
+    {
+        get => this.isRunningTestsField;
+        set
+        {
+            ChangeProperty(ref this.isRunningTestsField, value);
+            RunOrStopTestsButtonText = value ? "Stop tests" : "Run tests";
+        }
+    }
+
     public ObservableCollection<UITestViewModel> Tests { get; }
+
+    public UITestRelayCommand RunOrStopTestsCmd { get; }
 
     public UITestRelayCommand SelectAllTestsCmd { get; }
 
@@ -49,9 +71,12 @@ public class UITestsPrepareWindowViewModel : UITestBaseViewModel
 
     public UITestsPrepareWindowViewModel(int defaultActionWaitingTimeInMs, UITest[] uiTests, Action<string> uiTestsFinishedCallback)
     {
+        this.runOrStopTestsButtonTextField = string.Empty;
         this.uiTestsFinishedCallback = uiTestsFinishedCallback;
         ActionsWaitingTimeInMs = defaultActionWaitingTimeInMs;
+        IsRunningTests = false;
         Tests = new(uiTests.Select(t => new UITestViewModel(t.TestName, t)));
+        RunOrStopTestsCmd = new(RunOrStopTests);
         SelectAllTestsCmd = new(SelectAllTests);
         DeselectAllTestsCmd = new(DeselectAllTests);
     }
@@ -72,14 +97,28 @@ public class UITestsPrepareWindowViewModel : UITestBaseViewModel
         }
     }
 
-    internal void RunTests() => Dispatcher.UIThread.Post(async () => await RunTestsAsync());
+    internal void RunOrStopTests()
+    {
+        if (IsRunningTests)
+        {
+            this.cancellationTokenSource!.Cancel();
+            IsRunningTests = false;
+        }
+        else
+        {
+            this.cancellationTokenSource = new();
+            Dispatcher.UIThread.Post(async () => await RunTestsAsync());
+        }
+    }
 
     protected async Task RunTestsAsync()
     {
         var waitingTimeBetweenActions = TimeSpan.FromMilliseconds(ActionsWaitingTimeInMs);
         var tests = Tests.Where(t => t.Include).Select(t => t.Test).ToArray();
 
-        string resultsLog = await UITestsRunner.RunTestsAsync(waitingTimeBetweenActions, tests);
+        IsRunningTests = true;
+        string resultsLog = await UITestsRunner.RunTestsAsync(waitingTimeBetweenActions, this.cancellationTokenSource!.Token, tests);
+        IsRunningTests = false;
 
         this.uiTestsFinishedCallback(resultsLog);
     }

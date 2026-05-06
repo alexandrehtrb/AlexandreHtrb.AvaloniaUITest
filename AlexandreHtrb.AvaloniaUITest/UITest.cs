@@ -42,11 +42,13 @@ public abstract class UITest
     {
     }
 
+    internal void ResetInternalLog() => this.logAppender.Clear();
+
     public Task Wait(double seconds) => Task.Delay((int)(seconds * 1000));
 
     protected void AppendToLog(string msg) => this.logAppender.AppendLine(msg);
 
-    public abstract Task RunAsync();
+    public abstract Task RunAsync(CancellationToken cancellationToken);
 }
 
 public sealed class UITestException : Exception

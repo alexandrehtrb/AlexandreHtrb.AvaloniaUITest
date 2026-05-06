@@ -4,7 +4,7 @@ namespace AlexandreHtrb.AvaloniaUITest;
 
 public static class UITestsRunner
 {
-    public static async Task<string> RunTestsAsync(TimeSpan waitingTimeBetweenActions, params UITest[] tests)
+    public static async Task<string> RunTestsAsync(TimeSpan waitingTimeBetweenActions, CancellationToken cancellationToken, params UITest[] tests)
     {
         UITestActions.WaitingTimeAfterActions = waitingTimeBetweenActions;
 
@@ -21,7 +21,19 @@ public static class UITestsRunner
         StringBuilder allTestsLogsAppender = new();
         foreach (var test in tests)
         {
-            await RunTestAsync(allTestsLogsAppender, test);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                allTestsLogsAppender.AppendLine("---- TESTS EXECUTION STOPPED BY USER ----");
+                break;
+            }
+
+            await RunTestAsync(allTestsLogsAppender, test, cancellationToken);
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                allTestsLogsAppender.AppendLine("---- TESTS EXECUTION STOPPED BY USER ----");
+                break;
+            }
         }
         var totalTime = SumTotalTime(tests);
         string fmtTime = @"hh'h'mm'm'ss's'";
@@ -29,19 +41,24 @@ public static class UITestsRunner
         return allTestsLogsAppender.ToString();
     }
 
-    private static async Task RunTestAsync(StringBuilder allTestsLogsAppender, UITest test)
+    private static async Task RunTestAsync(StringBuilder allTestsLogsAppender, UITest test, CancellationToken cancellationToken)
     {
+        bool wasTestStopped = false;
         Exception? possibleException = null;
         try
         {
             test.Start();
-            await test.RunAsync();
+            await test.RunAsync(cancellationToken);
+            wasTestStopped = cancellationToken.IsCancellationRequested;
         }
         catch (Exception ex)
         {
             test.Successful = false;
             possibleException = ex;
-            
+            if (ex is TaskCanceledException || ex is OperationCanceledException)
+            {
+                wasTestStopped = true;
+            }            
         }
         finally
         {
@@ -49,12 +66,13 @@ public static class UITestsRunner
             if (!string.IsNullOrWhiteSpace(test.Log))
             {
                 allTestsLogsAppender.Append(test.Log);
+                test.ResetInternalLog();
             }
             if (possibleException != null)
             {
                 allTestsLogsAppender.AppendLine(possibleException.ToString());
             }
-            allTestsLogsAppender.AppendLine($"{test.TestName}: {(test.Successful == true ? "SUCCESS" : "FAILED")} {test.TotalElapsedSeconds}s");
+            allTestsLogsAppender.AppendLine($"{test.TestName}: {(wasTestStopped ? "STOPPED" : test.Successful == true ? "SUCCESS" : "FAILED")} {test.TotalElapsedSeconds}s");
         }
     }
 }
