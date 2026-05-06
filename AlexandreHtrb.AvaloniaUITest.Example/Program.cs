@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.ReactiveUI;
+using Avalonia;
 
 namespace AlexandreHtrb.AvaloniaUITest.Example;
 
@@ -17,6 +16,5 @@ class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
-            .LogToTrace()
-            .UseReactiveUI();
+            .LogToTrace();
 }

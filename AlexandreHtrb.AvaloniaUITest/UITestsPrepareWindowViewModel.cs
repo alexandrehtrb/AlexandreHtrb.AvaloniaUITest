@@ -1,24 +1,23 @@
-using Avalonia.Threading;
-using ReactiveUI;
 using System.Collections.ObjectModel;
-using System.Reactive;
+using AlexandreHtrb.AvaloniaUITest;
+using Avalonia.Threading;
 
 namespace AlexandreHtrb.AvaloniaUITest;
 
-public class UITestViewModel : ReactiveObject
+public class UITestViewModel : UITestBaseViewModel
 {
     private bool includeField;
     public bool Include
     {
         get => this.includeField;
-        set => this.RaiseAndSetIfChanged(ref this.includeField, value);
+        set => ChangeProperty(ref this.includeField, value);
     }
 
     private string? nameField;
     public string? Name
     {
         get => this.nameField;
-        set => this.RaiseAndSetIfChanged(ref this.nameField, value);
+        set => ChangeProperty(ref this.nameField, value);
     }
 
     public UITest Test { get; }
@@ -31,7 +30,7 @@ public class UITestViewModel : ReactiveObject
     }
 }
 
-public class UITestsPrepareWindowViewModel : ReactiveObject
+public class UITestsPrepareWindowViewModel : UITestBaseViewModel
 {
     private readonly Action<string> uiTestsFinishedCallback;
 
@@ -39,22 +38,22 @@ public class UITestsPrepareWindowViewModel : ReactiveObject
     public int ActionsWaitingTimeInMs
     {
         get => this.actionsWaitingtimeInMsField;
-        set => this.RaiseAndSetIfChanged(ref this.actionsWaitingtimeInMsField, value);
+        set => ChangeProperty(ref this.actionsWaitingtimeInMsField, value);
     }
 
     public ObservableCollection<UITestViewModel> Tests { get; }
 
-    public ReactiveCommand<Unit, Unit> SelectAllTestsCmd { get; }
+    public UITestRelayCommand SelectAllTestsCmd { get; }
 
-    public ReactiveCommand<Unit, Unit> DeselectAllTestsCmd { get; }
+    public UITestRelayCommand DeselectAllTestsCmd { get; }
 
     public UITestsPrepareWindowViewModel(int defaultActionWaitingTimeInMs, UITest[] uiTests, Action<string> uiTestsFinishedCallback)
     {
         this.uiTestsFinishedCallback = uiTestsFinishedCallback;
         ActionsWaitingTimeInMs = defaultActionWaitingTimeInMs;
         Tests = new(uiTests.Select(t => new UITestViewModel(t.TestName, t)));
-        SelectAllTestsCmd = ReactiveCommand.Create(SelectAllTests);
-        DeselectAllTestsCmd = ReactiveCommand.Create(DeselectAllTests);
+        SelectAllTestsCmd = new(SelectAllTests);
+        DeselectAllTestsCmd = new(DeselectAllTests);
     }
 
     private void SelectAllTests()

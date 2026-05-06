@@ -1,39 +1,46 @@
-﻿using AlexandreHtrb.AvaloniaUITest.Example.UITesting.Tests;
+using AlexandreHtrb.AvaloniaUITest.Example.UITesting.Tests;
 using AlexandreHtrb.AvaloniaUITest.Example.Views;
 using MsBox.Avalonia.Enums;
-using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
-using System.Reactive;
 
 namespace AlexandreHtrb.AvaloniaUITest.Example.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public class MainWindowViewModel : UITestBaseViewModel
 {
-    [Reactive]
-    public string Greeting { get; set; }
+    private string greetingField;
+    public string Greeting
+    {
+        get => this.greetingField;
+        set => ChangeProperty(ref this.greetingField!, value);
+    }
 
     private int clickCounter = 0;
 
-    [Reactive]
-    public string ClickedCounterMessage { get; set; }
+    private string clickedCounterMessageField;
+    public string ClickedCounterMessage
+    {
+        get => this.clickedCounterMessageField;
+        set => ChangeProperty(ref this.clickedCounterMessageField!, value);
+    }
 
-    public ReactiveCommand<Unit, Unit> ClickCmd { get; }
+    public UITestRelayCommand ClickCmd { get; }
 
-    public ReactiveCommand<Unit, Unit> ResetCmd { get; }
+    public UITestRelayCommand ResetCmd { get; }
 
-    public ReactiveCommand<Unit, Unit> RunUITestsCmd { get; }
+    public UITestRelayCommand RunUITestsCmd { get; }
 
+#nullable disable warnings
     public MainWindowViewModel()
     {
+#nullable restore warnings
 #if DEBUG || UI_TESTS_ENABLED
         Greeting = "Press F7 to run UI tests";
 #else
         Greeting = "Welcome to Avalonia!";
 #endif
         ClickedCounterMessage = "Clicked 0 times";
-        ClickCmd = ReactiveCommand.Create(Click);
-        ResetCmd = ReactiveCommand.Create(Reset);
-        RunUITestsCmd = ReactiveCommand.CreateFromTask(RunUITestsAsync);
+        ClickCmd = new(Click);
+        ResetCmd = new(Reset);
+        RunUITestsCmd = new(RunUITests);
     }
 
     private void Click()
@@ -49,7 +56,7 @@ public class MainWindowViewModel : ViewModelBase
     }
 
 #if DEBUG || UI_TESTS_ENABLED
-    private Task RunUITestsAsync()
+    private void RunUITests()
     {
         UITestsPrepareWindowViewModel vm = new(
             defaultActionWaitingTimeInMs: 20,
@@ -65,10 +72,9 @@ public class MainWindowViewModel : ViewModelBase
             });
         UITestsPrepareWindow uiTestsPrepareWindow = new(vm);
         uiTestsPrepareWindow.Show(MainWindow.Instance!);
-        return Task.CompletedTask;
     }
 #else
-    private Task RunUITestsAsync() => Task.CompletedTask;
+    private void RunUITests() {};
 #endif
 
 }
