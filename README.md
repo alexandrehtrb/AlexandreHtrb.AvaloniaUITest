@@ -24,7 +24,7 @@ The Example project in this repo is a kickstarting template.
 
 2) Because the UI tests runner dialog uses a DataGrid, you need to include DataGrid XAML styles in your App.xaml.
 
-```xaml
+```xml
 <Application.Styles>
   <FluentTheme />
   <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
@@ -35,7 +35,7 @@ The Example project in this repo is a kickstarting template.
 
 In the view's .xaml file, the controls that will be tested need to have names.
 
-```xaml
+```xml
 <TextBlock
   Name="tbCounter"
   Text="{Binding ClickedCounterMessage}"
@@ -109,7 +109,7 @@ private void OpenUITestsRunnerDialog()
             // insert your UI test classes here.
             new MainWindowUITest()
         ],
-		beforeStartTestsCallback: null,
+        beforeStartTestsCallback: null,
         uiTestsFinishedCallback: (resultsLog) =>
         {
             // you can customize this callback.
