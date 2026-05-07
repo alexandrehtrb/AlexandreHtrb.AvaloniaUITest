@@ -86,8 +86,8 @@
         Width="104"
         HorizontalContentAlignment="Center"
         VerticalContentAlignment="Center"
-        Command="{Binding RunOrStopTestsCmd}"
-        Content="{Binding RunOrStopTestsButtonText, Mode=OneWay}"/>
+        Click="RunTests"
+        Content="Run tests"/>
 
       <Button
         Height="40"

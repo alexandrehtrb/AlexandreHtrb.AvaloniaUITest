@@ -12,13 +12,13 @@ The Example project in this repo is a kickstarting template.
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="Avalonia" Version="11.3.12" />
+  <PackageReference Include="Avalonia" Version="12.0.2" />
   
   <!-- DataGrid is required for the UI tests runner dialog -->
-  <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.12" />
+  <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.0.0" />
   
   <!-- The version major and minor should be the same from Avalonia above -->
-  <PackageReference Include="AlexandreHtrb.AvaloniaUITest" Version="11.3.0.3" />
+  <PackageReference Include="AlexandreHtrb.AvaloniaUITest" Version="12.0.0" />
 </ItemGroup>
 ```
 
@@ -83,7 +83,7 @@ public sealed class MainWindowUITest : UITest
         Robot = new((Control)content!);
     }
 
-    public override async Task RunAsync()
+    public override async Task RunAsync(CancellationToken cancellationToken)
     {
         AppendToLog("Starting my test!");
 
@@ -109,6 +109,7 @@ private void OpenUITestsRunnerDialog()
             // insert your UI test classes here.
             new MainWindowUITest()
         ],
+		beforeStartTestsCallback: null,
         uiTestsFinishedCallback: (resultsLog) =>
         {
             // you can customize this callback.

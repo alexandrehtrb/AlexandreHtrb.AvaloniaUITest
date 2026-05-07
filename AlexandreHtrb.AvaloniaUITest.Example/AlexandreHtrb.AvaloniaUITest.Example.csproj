@@ -15,7 +15,7 @@
       line below will include UI_TESTS_ENABLED preprocessor directive
       when "-p:UITestsEnabled" is specified in dotnet build, run or publish
     -->
-    <DefineConstants Condition=" '$(UITestsEnabled)' == 'true' ">$(DefineConstants);UI_TESTS_ENABLED</DefineConstants>
+    <!--DefineConstants Condition=" '$(UITestsEnabled)' == 'true' ">$(DefineConstants);UI_TESTS_ENABLED</DefineConstants-->
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,10 +29,10 @@
   </ItemGroup>
 
   <!-- Removes UI tests code in release versions that are not flagged for UI tests -->
-  <ItemGroup Condition="'$(Configuration)'=='Release' And '$(UITestsEnabled)' == 'false'">
+  <!--ItemGroup Condition="'$(Configuration)'=='Release' And '$(UITestsEnabled)' == 'false'">
     <Compile Remove="UITesting\**" />
     <Content Include="UITesting\**" />
-  </ItemGroup>
+  </ItemGroup-->
 
   <ItemGroup>
     <ProjectReference Include="..\AlexandreHtrb.AvaloniaUITest\AlexandreHtrb.AvaloniaUITest.csproj" />

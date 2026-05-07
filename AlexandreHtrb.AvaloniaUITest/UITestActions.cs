@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 
 namespace AlexandreHtrb.AvaloniaUITest;
 
@@ -11,7 +12,16 @@ public static class UITestActions
     public static Task WaitAfterActionAsync() => Task.Delay(WaitingTimeAfterActions);
 
     public static TreeViewItem? GetTreeViewItemViewAtIndex(this TreeView parentView, int index) =>
-        (TreeViewItem?)parentView.ItemsView[index];
+        (TreeViewItem?)parentView.GetLogicalChildren().OfType<TreeViewItem>().ElementAt(index);
+
+    public static TreeViewItem? GetTreeViewItemViewAtIndex(this TreeViewItem parentView, int index) =>
+        (TreeViewItem?)parentView.GetLogicalChildren().OfType<TreeViewItem>().ElementAt(index);
+
+    public static IVM? GetItemAtIndex<IVM>(this TreeView parentView, int index) =>
+        (IVM?)parentView.Items[index];
+
+    public static IVM? GetItemAtIndex<IVM>(this TreeViewItem parentView, int index) =>
+        (IVM?)parentView.Items[index];
 
     public static async Task ClickOn(this Button control)
     {
@@ -52,7 +62,7 @@ public static class UITestActions
     public static async Task Select(this ComboBox cb, ComboBoxItem item)
     {
         cb.IsDropDownOpen = true;
-        cb.SelectedIndex = cb.Items.IndexOf(item);
+        cb.SelectedIndex = cb.GetLogicalChildren().ToList().IndexOf(item);
         cb.IsDropDownOpen = false;
         await WaitAfterActionAsync();
     }
@@ -66,6 +76,23 @@ public static class UITestActions
     public static async Task Select(this TabControl tc, TabItem ti)
     {
         tc.SelectedItem = ti;
+        await WaitAfterActionAsync();
+    }
+
+    internal static async Task Select<IVM>(this TreeView tree, IVM itemViewModel)
+    {
+        tree.SelectedItem = itemViewModel;
+        await WaitAfterActionAsync();
+    }
+
+    internal static async Task SelectMultiple<IVM>(this TreeView tree, params IVM[] itemsViewModels)
+    {
+        tree.SelectedItem = null;
+        tree.SelectedItems.Clear();
+        foreach (var item in itemsViewModels)
+        {
+            tree.SelectedItems.Add(item);
+        }
         await WaitAfterActionAsync();
     }
 

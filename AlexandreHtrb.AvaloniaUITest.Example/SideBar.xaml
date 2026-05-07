@@ -1,0 +1,20 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Style Selector="TreeView.sidebar TreeViewItem">
+    <Setter
+        Property="Foreground"
+        Value="{DynamicResource MainWindowSidebarTabItemForegroundBrush}"/>
+  </Style>
+  <Style Selector="TreeView.sidebar TreeViewItem:pointerover">
+    <Setter
+        Property="Foreground"
+        Value="{DynamicResource MainWindowSidebarTabItemHoverForegroundBrush}"/>
+  </Style>
+  <Style Selector="TreeView.sidebar TreeViewItem:selected">
+    <Setter
+        Property="Foreground"
+        Value="{DynamicResource MainWindowSidebarTabItemSelectedForegroundBrush}"/>
+  </Style>
+</Styles>

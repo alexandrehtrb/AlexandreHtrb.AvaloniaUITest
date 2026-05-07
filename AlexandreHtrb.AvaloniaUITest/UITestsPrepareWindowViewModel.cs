@@ -32,6 +32,8 @@ public class UITestViewModel : UITestBaseViewModel
 
 public class UITestsPrepareWindowViewModel : UITestBaseViewModel
 {
+    private readonly Action? beforeStartTestsCallback;
+
     private readonly Action<string> uiTestsFinishedCallback;
 
     private CancellationTokenSource? cancellationTokenSource;
@@ -63,20 +65,18 @@ public class UITestsPrepareWindowViewModel : UITestBaseViewModel
 
     public ObservableCollection<UITestViewModel> Tests { get; }
 
-    public UITestRelayCommand RunOrStopTestsCmd { get; }
-
     public UITestRelayCommand SelectAllTestsCmd { get; }
 
     public UITestRelayCommand DeselectAllTestsCmd { get; }
 
-    public UITestsPrepareWindowViewModel(int defaultActionWaitingTimeInMs, UITest[] uiTests, Action<string> uiTestsFinishedCallback)
+    public UITestsPrepareWindowViewModel(int defaultActionWaitingTimeInMs, UITest[] uiTests, Action? beforeStartTestsCallback, Action<string> uiTestsFinishedCallback)
     {
         this.runOrStopTestsButtonTextField = string.Empty;
+        this.beforeStartTestsCallback = beforeStartTestsCallback;
         this.uiTestsFinishedCallback = uiTestsFinishedCallback;
         ActionsWaitingTimeInMs = defaultActionWaitingTimeInMs;
         IsRunningTests = false;
         Tests = new(uiTests.Select(t => new UITestViewModel(t.TestName, t)));
-        RunOrStopTestsCmd = new(RunOrStopTests);
         SelectAllTestsCmd = new(SelectAllTests);
         DeselectAllTestsCmd = new(DeselectAllTests);
     }
@@ -97,17 +97,21 @@ public class UITestsPrepareWindowViewModel : UITestBaseViewModel
         }
     }
 
-    internal void RunOrStopTests()
+    internal void RunTests()
+    {
+        if (!IsRunningTests)
+        {
+            this.cancellationTokenSource = new();
+            this.beforeStartTestsCallback?.Invoke();
+            Dispatcher.UIThread.Post(async () => await RunTestsAsync());
+        }
+    }
+
+    internal void StopTests()
     {
         if (IsRunningTests)
         {
             this.cancellationTokenSource!.Cancel();
-            IsRunningTests = false;
-        }
-        else
-        {
-            this.cancellationTokenSource = new();
-            Dispatcher.UIThread.Post(async () => await RunTestsAsync());
         }
     }
 

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2025 Alexandre H. T. R. Bonfitto
+Copyright (c) 2026 Alexandre H. T. R. Bonfitto
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

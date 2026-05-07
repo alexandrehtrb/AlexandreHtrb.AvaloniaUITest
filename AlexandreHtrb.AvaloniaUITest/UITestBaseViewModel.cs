@@ -13,7 +13,7 @@ public abstract class UITestBaseViewModel : INotifyPropertyChanged
     }
 
     protected void ChangeProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-        where T : class
+        where T : class?
     {
         if (field != value)
         {
@@ -32,15 +32,6 @@ public abstract class UITestBaseViewModel : INotifyPropertyChanged
     }
 
     protected void ChangeProperty(ref int field, int value, [CallerMemberName] string? propertyName = null)
-    {
-        if (field != value)
-        {
-            field = value;
-            OnPropertyChanged(propertyName);
-        }
-    }
-
-    protected void ChangeProperty(ref string? field, string? value, [CallerMemberName] string? propertyName = null)
     {
         if (field != value)
         {

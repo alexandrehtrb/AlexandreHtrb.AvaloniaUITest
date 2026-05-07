@@ -6,8 +6,9 @@ public sealed class MainWindowRobot : BaseRobot
 {
     public MainWindowRobot(Control rootView) : base(rootView) { }
 
-    internal TextBlock GreetingMsg => GetChildView<TextBlock>("tbGreeting")!;
-    internal TextBlock CounterMsg => GetChildView<TextBlock>("tbCounter")!;
-    internal Button BtClick => GetChildView<Button>("btClick")!;
-    internal Button BtReset => GetChildView<Button>("btReset")!;
+    internal TreeView Tree => GetChildView<TreeView>("mainWindowTree")!;
+    internal TextBlock SelectedItemName => GetChildView<TextBlock>("tbSelectedItemName")!;
+    internal TextBox NewChildName => GetChildView<TextBox>("tbNewChildName")!;
+    internal Button DeleteSelectedItems => GetChildView<Button>("btDeleteSelectedItems")!;
+    internal Button AddChild => GetChildView<Button>("btAddChild")!;
 }
